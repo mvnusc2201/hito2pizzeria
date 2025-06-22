@@ -6,6 +6,7 @@ const Navbar = ({ setView, total }) => {
       <div className="navbar-nav w-100 d-flex justify-content-between">
         <div className="d-flex gap-2">
           <button className="btn btn-outline-light" onClick={() => setView('home')}>🍕 Home</button>
+          <button className="btn btn-outline-light" onClick={() => setView('pizza')}>🍕 Pizza</button>
           {token ? (
             <>
               <button className="btn btn-outline-light">🔓 Profile</button>

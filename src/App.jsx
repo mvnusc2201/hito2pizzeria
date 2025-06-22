@@ -5,6 +5,7 @@ import Home from './components/Home'
 import RegisterPage from './components/RegisterPage'
 import LoginPage from './components/LoginPage'
 import Cart from './components/Cart'
+import Pizza from './components/Pizza'
 import { pizzaCart } from './data/pizzas'
 
 const App = () => {
@@ -32,6 +33,7 @@ const App = () => {
       {view === 'login' && <LoginPage setView={setView} />}
       {view === 'register' && <RegisterPage setView={setView} />}
       {view === 'cart' && <Cart cart={cart} setCart={setCart} />}
+      {view === 'pizza' && <Pizza />}
       <Footer />
     </div>
   )

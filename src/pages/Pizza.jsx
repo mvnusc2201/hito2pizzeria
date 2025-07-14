@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 
 const Pizza = () => {
+  const { id } = useParams()
   const [pizza, setPizza] = useState(null)
 
   useEffect(() => {
-    fetch('/api/pizzas/p001') // puedes cambiar el id si quieres otra
+    fetch(`/api/pizzas/${id}`)
       .then(res => res.json())
       .then(data => setPizza(data))
       .catch(err => console.error('Error al obtener la pizza:', err))
-  }, [])
+  }, [id])
 
-  if (!pizza) return <p>Cargando pizza...</p>
+  if (!pizza) return <p className="text-center mt-5">Cargando pizza...</p>
 
   return (
     <div className="container mt-5">

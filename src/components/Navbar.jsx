@@ -1,31 +1,37 @@
-import { Link } from 'react-router-dom'
-import { useCart } from '../context/CartContext'
+import { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { UserContext } from '../context/UserContext'
 
-const Navbar = () => {
-  const token = false
-  const { total } = useCart() 
+const Navbar = ({ total }) => {
+  const { token, setToken } = useContext(UserContext)
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    setToken('')
+    localStorage.removeItem('token')
+    navigate('/')
+  }
 
   return (
     <nav className="navbar navbar-expand-lg bg-dark navbar-dark px-4">
       <div className="navbar-nav w-100 d-flex justify-content-between">
         <div className="d-flex gap-2">
-          <Link className="btn btn-outline-light" to="/">🍕 Home</Link>
-          <Link className="btn btn-outline-light" to="/pizza/p001">🍕 Pizza</Link>
+          <button className="btn btn-outline-light" onClick={() => navigate('/')}>🍕 Home</button>
           {token ? (
             <>
-              <Link className="btn btn-outline-light" to="/profile">🔓 Profile</Link>
-              <button className="btn btn-outline-light">🔒 Logout</button>
+              <button className="btn btn-outline-light" onClick={() => navigate('/profile')}>🔓 Profile</button>
+              <button className="btn btn-outline-light" onClick={handleLogout}>🔒 Logout</button>
             </>
           ) : (
             <>
-              <Link className="btn btn-outline-light" to="/login">🔐 Login</Link>
-              <Link className="btn btn-outline-light" to="/register">🔐 Register</Link>
+              <button className="btn btn-outline-light" onClick={() => navigate('/login')}>🔐 Login</button>
+              <button className="btn btn-outline-light" onClick={() => navigate('/register')}>🔐 Register</button>
             </>
           )}
         </div>
-        <Link className="btn btn-outline-light" to="/cart">
+        <button className="btn btn-outline-light" onClick={() => navigate('/cart')}>
           🛒 Total: ${total.toLocaleString('es-CL')}
-        </Link>
+        </button>
       </div>
     </nav>
   )

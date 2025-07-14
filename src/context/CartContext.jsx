@@ -1,40 +1,40 @@
-import { createContext, useState, useContext } from 'react'
+import { createContext, useContext, useEffect, useState } from "react";
 
-const CartContext = createContext()
-
-export const useCart = () => useContext(CartContext)
+export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState([])
-
-  const total = cart.reduce((acc, p) => acc + p.price * p.quantity, 0)
+  const [cart, setCart] = useState([]);
+  const [total, setTotal] = useState(0);
 
   const addToCart = (pizza) => {
-    const found = cart.find(p => p.id === pizza.id)
-    if (found) {
-      setCart(cart.map(p =>
-        p.id === pizza.id ? { ...p, quantity: p.quantity + 1 } : p
-      ))
-    } else {
-      setCart([...cart, { ...pizza, quantity: 1 }])
-    }
-  }
+    setCart((prevCart) => {
+      const existing = prevCart.find((item) => item.id === pizza.id);
+      if (existing) {
+        return prevCart.map((item) =>
+          item.id === pizza.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prevCart, { ...pizza, quantity: 1 }];
+    });
+  };
 
-  const increase = (id) => {
-    setCart(cart.map(p =>
-      p.id === id ? { ...p, quantity: p.quantity + 1 } : p
-    ))
-  }
+  const clearCart = () => {
+    setCart([]);
+  };
 
-  const decrease = (id) => {
-    setCart(cart
-      .map(p => p.id === id ? { ...p, quantity: p.quantity - 1 } : p)
-      .filter(p => p.quantity > 0))
-  }
+  const getTotalPrice = () => {
+    return cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  };
+
+  useEffect(() => {
+    setTotal(getTotalPrice());
+  }, [cart]);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, increase, decrease, total }}>
+    <CartContext.Provider value={{ cart, setCart, addToCart, clearCart, total, getTotalPrice }}>
       {children}
     </CartContext.Provider>
-  )
-}
+  );
+};
+
+export const useCart = () => useContext(CartContext);

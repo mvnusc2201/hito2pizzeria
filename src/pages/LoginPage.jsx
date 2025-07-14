@@ -1,44 +1,93 @@
-import { useState } from 'react'
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
-const LoginPage = ({ setView }) => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [message, setMessage] = useState('')
+const LoginPage = () => {
+  const { setUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!email || !password) {
-      setMessage('Todos los campos son obligatorios')
-    } else if (password.length < 6) {
-      setMessage('La contraseña debe tener al menos 6 caracteres')
-    } else {
-      setMessage('Inicio de sesión exitoso')
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    if (!formData.email || !formData.password) {
+      setError("Por favor, completa todos los campos.");
+      setLoading(false);
+      return;
     }
-  }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Error al iniciar sesión");
+        setLoading(false);
+        return;
+      }
+
+      setUser({ email: formData.email, token: data.token });
+      navigate("/");
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Error al conectar con el servidor.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-5" style={{ maxWidth: "400px" }}>
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label>Email:</label>
-          <input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input
+            className="form-control"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+          />
         </div>
         <div className="mb-3">
           <label>Contraseña:</label>
-          <input type="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <input
+            className="form-control"
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+          />
         </div>
-        <button type="submit" className="btn btn-primary">Iniciar sesión</button>
-      </form>
-      {message && <div className="alert alert-info mt-3">{message}</div>}
-
-      <div className="mt-3">
-        <button className="btn btn-link" onClick={() => setView('register')}>
-          ¿No tienes cuenta? Regístrate
+        {error && <div className="alert alert-danger">{error}</div>}
+        <button className="btn btn-primary w-100" type="submit" disabled={loading}>
+          {loading ? "Cargando..." : "Iniciar sesión"}
         </button>
-      </div>
+      </form>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;

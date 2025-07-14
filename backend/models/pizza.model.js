@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFile } from "fs/promises";
 
 const getPizzas = async () => {
   const data = await readFile("db/pizzas.json", "utf-8");
@@ -7,7 +7,7 @@ const getPizzas = async () => {
 
 const getPizza = async (id) => {
   const pizzas = await getPizzas();
-  return pizzas.find((pizza) => pizza.id === id);
+  return pizzas.find((p) => p.id === id);
 };
 
 export const pizzaModel = {

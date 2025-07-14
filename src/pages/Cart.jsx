@@ -1,35 +1,61 @@
-import { useCart } from '../context/CartContext'
+import { useCart } from '../context/CartContext';
+import { useContext } from 'react';
+import { UserContext } from '../context/UserContext';
 
 const Cart = () => {
-  const { cart, increase, decrease, total } = useCart()
+  const { cart, total, clearCart } = useCart();
+  const { token, email } = useContext(UserContext);
+
+  const handleCheckout = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/checkouts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          email,
+          cart,
+          total,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('✅ Pedido procesado correctamente');
+        clearCart();
+      } else {
+        alert(`❌ Hubo un problema al procesar tu pedido: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('❌ Error al enviar el pedido:', error);
+      alert('❌ Hubo un problema al procesar tu pedido');
+    }
+  };
 
   return (
     <div className="container mt-5">
       <h2>Carrito de Compras</h2>
       {cart.length === 0 ? (
-        <p>No hay productos en el carrito.</p>
+        <p>Tu carrito está vacío.</p>
       ) : (
         <>
-          {cart.map(pizza => (
-            <div key={pizza.id} className="d-flex align-items-center border-bottom py-2">
-              <img src={pizza.img} alt={pizza.name} width="80" className="me-3" />
-              <div className="flex-grow-1">
-                <h5>{pizza.name}</h5>
-                <p>${pizza.price.toLocaleString('es-CL')}</p>
-              </div>
-              <div className="d-flex align-items-center gap-2">
-                <button className="btn btn-danger btn-sm" onClick={() => decrease(pizza.id)}>-</button>
-                <span>{pizza.quantity}</span>
-                <button className="btn btn-success btn-sm" onClick={() => increase(pizza.id)}>+</button>
-              </div>
-            </div>
-          ))}
-          <h4 className="mt-4">Total: ${total.toLocaleString('es-CL')}</h4>
-          <button className="btn btn-primary mt-2">Pagar</button>
+          <ul className="list-group mb-3">
+            {cart.map((item) => (
+              <li key={item.id} className="list-group-item d-flex justify-content-between">
+                <span>{item.name} x {item.quantity}</span>
+                <span>${item.price * item.quantity}</span>
+              </li>
+            ))}
+          </ul>
+          <h4>Total: ${total}</h4>
+          <button onClick={handleCheckout} className="btn btn-success mt-3">Pagar</button>
         </>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Cart
+export default Cart;

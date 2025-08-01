@@ -1,21 +1,28 @@
 import { useCart } from '../context/CartContext';
-import { useContext } from 'react';
-import { UserContext } from '../context/UserContext';
+import { useUser } from '../context/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
   const { cart, total, clearCart } = useCart();
-  const { token, email } = useContext(UserContext);
+  const { user } = useUser();
+  const navigate = useNavigate();
 
   const handleCheckout = async () => {
+    if (!user?.token) {
+      alert('Debes iniciar sesión para pagar.');
+      navigate('/login');
+      return;
+    }
+
     try {
       const res = await fetch('http://localhost:5000/api/checkouts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${user.token}`,
         },
         body: JSON.stringify({
-          email,
+          email: user.email,
           cart,
           total,
         }),
@@ -27,7 +34,7 @@ const Cart = () => {
         alert('✅ Pedido procesado correctamente');
         clearCart();
       } else {
-        alert(`❌ Hubo un problema al procesar tu pedido: ${data.error}`);
+        alert(`❌ Error al procesar tu pedido: ${data.error}`);
       }
     } catch (error) {
       console.error('❌ Error al enviar el pedido:', error);

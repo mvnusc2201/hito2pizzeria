@@ -17,6 +17,11 @@ app.use("/api/pizzas", pizzaRoutes);
 app.use("/api", authRoutes);
 app.use("/api", checkoutRoutes);
 
+app.get("/", (req, res) => {
+  res.send("✅ Backend activo");
+});
+
+
 app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
 });

@@ -8,7 +8,7 @@ const MyOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/checkout", {
+        const res = await fetch("http://localhost:5000/api/checkout/orders", {
           headers: {
             Authorization: `Bearer ${user.token}`,
           },

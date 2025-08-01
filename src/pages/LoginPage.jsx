@@ -1,9 +1,9 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../context/UserContext";
+import { useUser } from "../context/UserContext";
 
 const LoginPage = () => {
-  const { setUser } = useContext(UserContext);
+  const { login } = useUser();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -32,29 +32,15 @@ const LoginPage = () => {
       return;
     }
 
-    try {
-      const res = await fetch("http://localhost:5000/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+    const success = await login(formData.email, formData.password);
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Error al iniciar sesión");
-        setLoading(false);
-        return;
-      }
-
-      setUser({ email: formData.email, token: data.token });
+    if (success) {
       navigate("/");
-    } catch (err) {
-      console.error("Login error:", err);
-      setError("Error al conectar con el servidor.");
-    } finally {
-      setLoading(false);
+    } else {
+      setError("Credenciales incorrectas");
     }
+
+    setLoading(false);
   };
 
   return (
